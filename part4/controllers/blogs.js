@@ -40,8 +40,31 @@ blogsRouter.post("/", async (request, response) => {
 });
 
 blogsRouter.delete("/:id", async (request, response) => {
-  await Blog.findByIdAndRemove(request.params.id);
-  response.status(204).end();
+  try {
+    const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET);
+    if (!decodedToken.id) {
+      return response.status(401).json({ error: "token invalid" });
+    }
+
+    const blog = await Blog.findById(request.params.id);
+
+    if (!blog) {
+      return response.status(404).json({ error: "blog not found" });
+    }
+
+    if (blog.user.toString() !== decodedToken.id) {
+      return response.status(403).json({ error: "permission denied" });
+    }
+
+    await Blog.findByIdAndDelete(request.params.id);
+    response.status(204).end();
+  } catch (err) {
+    console.error("Error deleting blog:", err);
+    if (err.name === "JsonWebTokenError") {
+      return response.status(401).json({ error: "token invalid" });
+    }
+    response.status(500).json({ error: "Internal server error" });
+  }
 });
 
 blogsRouter.patch("/:id", async (request, response) => {
@@ -55,6 +78,56 @@ blogsRouter.patch("/:id", async (request, response) => {
     return res.status(404).json({ error: "Blog not found" });
   }
   res.json(updatedBlog);
+});
+
+blogsRouter.put("/:id", async (request, response) => {
+  try {
+    const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET);
+    if (!decodedToken.id) {
+      return response.status(401).json({ error: "token invalid" });
+    }
+
+    const user = await User.findById(decodedToken.id);
+    if (!user) {
+      return response.status(400).json({ error: "user not found" });
+    }
+
+    const blog = await Blog.findById(request.params.id);
+    if (!blog) {
+      return response.status(404).send({ message: "Blog not found" });
+    }
+
+    if (blog.user.toString() !== user.id.toString()) {
+      return response.status(403).json({
+        error: "You are not authorized to update this blog",
+      });
+    }
+
+    const { likes, author, title, url } = request.body;
+
+    if (likes !== undefined) blog.likes = likes;
+    if (author) blog.author = author;
+    if (title) blog.title = title;
+    if (url) blog.url = url;
+
+    const updatedBlog = await blog.save();
+
+    await updatedBlog.populate("user", "username name");
+
+    response.status(200).json(updatedBlog);
+  } catch (err) {
+    console.error("Error updating blog:", err);
+
+    if (err.name === "JsonWebTokenError") {
+      return response.status(401).json({ error: "token invalid" });
+    }
+
+    if (err.name === "ValidationError") {
+      return response.status(400).json({ error: err.message });
+    }
+
+    response.status(500).json({ error: "Internal server error" });
+  }
 });
 
 module.exports = blogsRouter;
