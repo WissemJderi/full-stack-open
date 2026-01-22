@@ -1,16 +1,23 @@
-const Notification = ({ text, error }) => {
+import { useContext } from "react";
+import NotifcationContext from "../context/NotificationContext";
+
+const Notification = () => {
+  const { notification } = useContext(NotifcationContext);
+
+  if (!notification) return null;
+
   return (
     <div
       style={{
-        backgroundColor: error ? 'red' : 'green',
-        border: 'black 3px solid',
-        borderRadius: '10px',
-        padding: '5px',
+        backgroundColor: notification.error ? "red" : "green",
+        border: "black 3px solid",
+        borderRadius: "10px",
+        padding: "5px",
       }}
     >
-      <h3>{text}</h3>
+      <h3>{notification.text}</h3>
     </div>
-  )
-}
+  );
+};
 
-export default Notification
+export default Notification;

@@ -1,15 +1,10 @@
-import { useState } from "react";
-import blogService from "../services/blogs";
+import { useContext, useState } from "react";
+import UserContext from "../context/UserContext";
 
-const Blog = ({ blog, setBlogs, user, handleLike }) => {
+const Blog = ({ blog, handleLike, handleRemove }) => {
   const [display, setDisplay] = useState(false);
+  const { user, userDispatch } = useContext(UserContext);
 
-  const removeBlog = async () => {
-    if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
-      await blogService.removeBlog(blog.id);
-      setBlogs((blogs) => blogs.filter((currBlog) => currBlog.id !== blog.id));
-    }
-  };
   return (
     <div
       style={{ border: "2px solid black", padding: "10px 5px", margin: "5px" }}
@@ -29,8 +24,14 @@ const Blog = ({ blog, setBlogs, user, handleLike }) => {
             likes {blog.likes} <button onClick={handleLike}>like</button>
           </p>
           <p>{blog.user.name}</p>
-          {user === blog.user.name && (
-            <button onClick={removeBlog}>remove</button>
+          {user.name === blog.user.name && (
+            <button
+              onClick={() => {
+                handleRemove(blog.id, blog.title, blog.author);
+              }}
+            >
+              remove
+            </button>
           )}
         </>
       )}
