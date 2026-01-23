@@ -2,11 +2,12 @@ import { Link } from "react-router-dom";
 
 const Blog = ({ blog }) => {
   return (
-    <div
-      style={{ border: "2px solid black", padding: "10px 5px", margin: "5px" }}
+    <Link
+      to={`/blogs/${blog.id}`}
+      className=" border-2 border-[#F2A65A] p-4 my-2 cursor-pointer text-lg font-semibold"
     >
-      <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
-    </div>
+      {blog.title}
+    </Link>
   );
 };
 

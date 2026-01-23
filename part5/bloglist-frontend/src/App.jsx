@@ -164,23 +164,16 @@ const App = () => {
       >
         <BrowserRouter>
           <div>
-            <nav
-              style={{
-                backgroundColor: "gray",
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                padding: "5px",
-              }}
-            >
+            <nav className="bg-[#BFC6C4] py-4 flex align-center justify-center text-lg font-bold gap-15">
               <Link to="/">blogs</Link>
               <Link to="/users">users</Link>
               <p>
-                {`${user.name} logged in`}{" "}
-                <button onClick={handleLogout}>logout</button>
+                {`${user.name} logged in`}
+                <button onClick={handleLogout}>
+                  <span className="bg-white cursor-pointer p-1">logout</span>
+                </button>
               </p>
             </nav>
-            <h2>blogs app</h2>
             {notification ? <Notification /> : null}
             {result.isLoading && <p>Loading blogs...</p>}
           </div>

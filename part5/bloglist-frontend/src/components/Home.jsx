@@ -12,23 +12,29 @@ const Home = ({
 }) => {
   return (
     <div>
-      <h1>create new</h1>
-      <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-        <BlogForm createBlog={addBlog} />
-      </Togglable>
+      <h1 className="text-4xl text-center m-6">blogs app</h1>
 
-      {blogs &&
-        blogs
-          .sort((a, b) => b.likes - a.likes)
-          .map((blog) => (
-            <Blog
-              key={blog.id}
-              blog={blog}
-              user={user.name}
-              handleLike={() => handleLike(blog)}
-              handleRemove={handleRemove}
-            />
-          ))}
+      <div className="border-4 border-[#6F8F72] m-6 p-10">
+        <h2 className="text-center text-2xl font-semibold">create new</h2>
+        <Togglable buttonLabel="create new blog" ref={blogFormRef}>
+          <BlogForm createBlog={addBlog} />
+        </Togglable>
+
+        {blogs &&
+          blogs
+            .sort((a, b) => b.likes - a.likes)
+            .map((blog) => (
+              <div className="flex flex-row gap-2">
+                <Blog
+                  key={blog.id}
+                  blog={blog}
+                  user={user.name}
+                  handleLike={() => handleLike(blog)}
+                  handleRemove={handleRemove}
+                />
+              </div>
+            ))}
+      </div>
     </div>
   );
 };
