@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useReducer } from "react";
-import { BrowserRouter, Route, Routes } from "react-router";
+import { BrowserRouter, Link, Route, Routes } from "react-router";
 
 // Services
 import blogService from "./services/blogs";
@@ -15,6 +15,8 @@ import notificationReducer from "./reducers/notificationReducer";
 import userReducer from "./reducers/userReducer";
 import Home from "./components/Home";
 import Users from "./components/Users";
+import UserBlogs from "./components/UserBlogs";
+import ViewBlog from "./components/ViewBlog";
 
 const App = () => {
   const queryClient = useQueryClient();
@@ -162,13 +164,25 @@ const App = () => {
       >
         <BrowserRouter>
           <div>
-            <h2>blogs</h2>
+            <nav
+              style={{
+                backgroundColor: "gray",
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                padding: "5px",
+              }}
+            >
+              <Link to="/">blogs</Link>
+              <Link to="/users">users</Link>
+              <p>
+                {`${user.name} logged in`}{" "}
+                <button onClick={handleLogout}>logout</button>
+              </p>
+            </nav>
+            <h2>blogs app</h2>
             {notification ? <Notification /> : null}
             {result.isLoading && <p>Loading blogs...</p>}
-            <p>
-              {`${user.name} logged in`}{" "}
-              <button onClick={handleLogout}>logout</button>
-            </p>
           </div>
           <Routes>
             <Route
@@ -178,13 +192,17 @@ const App = () => {
                   blogs={blogs}
                   blogFormRef={blogFormRef}
                   handleRemove={handleRemove}
-                  handleLike={handleLike}
                   addBlog={addBlog}
                   user={user}
                 />
               }
             />
             <Route path="/users" element={<Users />} />
+            <Route path="/users/:id" element={<UserBlogs />} />
+            <Route
+              path="/blogs/:id"
+              element={<ViewBlog handleLike={handleLike} />}
+            />
           </Routes>
         </BrowserRouter>
       </NotificationContext.Provider>

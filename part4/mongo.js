@@ -17,25 +17,18 @@ const blogSchema = mongoose.Schema({
   author: String,
   url: String,
   likes: Number,
+  comments: [String],
 });
 
 const Blog = mongoose.model("Blog", blogSchema);
 
-const blog = new Blog({
-  title: "This is the second blog",
-  author: "Wissem",
-  url: "https://fullstackopen.com/en/part4/structure_of_backend_application_in…",
-  likes: 6,
-});
-
-blog.save().then((result) => {
-  console.log("blog saved!");
+const addCommentsArray = async () => {
+  await Blog.updateMany(
+    { comments: { $exists: false } },
+    { $set: { comments: [] } },
+  );
+  console.log("Migration complete: added empty comments arrays");
   mongoose.connection.close();
-});
+};
 
-Blog.find({}).then((result) => {
-  result.forEach((blog) => {
-    console.log(blog);
-  });
-  mongoose.connection.close();
-});
+addCommentsArray();
