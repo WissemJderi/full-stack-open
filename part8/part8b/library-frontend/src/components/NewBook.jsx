@@ -1,6 +1,6 @@
 import { useMutation } from "@apollo/client/react";
 import { useState } from "react";
-import { ALL_AUTHORS, ALL_BOOKS, CREATE_BOOK } from "../queries";
+import { ALL_AUTHORS, BOOKS_BY_GENRE, CREATE_BOOK } from "../queries";
 
 const NewBook = () => {
   const [title, setTitle] = useState("");
@@ -10,17 +10,42 @@ const NewBook = () => {
   const [genres, setGenres] = useState([]);
 
   const [createBook] = useMutation(CREATE_BOOK, {
-    refetchQueries: [{ query: ALL_BOOKS }, { query: ALL_AUTHORS }],
-  });
+    update: (cache, { data: { addBook } }) => {
+      cache.updateQuery(
+        { query: BOOKS_BY_GENRE, variables: { genre: null } },
+        (data) => {
+          if (!data) return { allBooks: [addBook] };
+          return { allBooks: data.allBooks.concat(addBook) };
+        },
+      );
 
+      addBook.genres.forEach((g) => {
+        cache.updateQuery(
+          { query: BOOKS_BY_GENRE, variables: { genre: g } },
+          (data) => {
+            if (!data) return { allBooks: [addBook] };
+            return { allBooks: data.allBooks.concat(addBook) };
+          },
+        );
+      });
+
+      cache.updateQuery({ query: ALL_AUTHORS }, (data) => {
+        if (!data) return data;
+        return {
+          allAuthors: data.allAuthors.map((author) =>
+            author.name === addBook.author.name
+              ? { ...author, bookCount: author.bookCount + 1 }
+              : author,
+          ),
+        };
+      });
+    },
+  });
   const submit = async (event) => {
     event.preventDefault();
-
     createBook({
       variables: { title, author, published: Number(published), genres },
     });
-
-    console.log("add book...");
 
     setTitle("");
     setPublished("");
