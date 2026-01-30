@@ -1,14 +1,14 @@
-type ratingDescription =
+export type ratingDescription =
   | "you need discipline"
   | "not too bad but could be better"
   | "keep it up!";
 
-interface Rating {
+export interface Rating {
   rating: number;
   ratingDescription: ratingDescription;
 }
 
-interface Result {
+export interface Result {
   periodLength: number;
   trainingDays: number;
   success: boolean;
@@ -70,7 +70,7 @@ const calcRating = (average: number, target: number): Rating => {
   return { rating: rating, ratingDescription: ratingDescription };
 };
 
-const calculateExercises = (
+export const calculateExercises = (
   dailyExercisesHours: number[],
   targetAmount: number,
 ): Result => {
